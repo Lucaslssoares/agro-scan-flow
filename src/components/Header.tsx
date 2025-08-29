@@ -1,17 +1,16 @@
-import { Wheat, Truck, QrCode, Scale } from "lucide-react";
+import { Wheat, Truck, QrCode } from "lucide-react";
 
 interface HeaderProps {
   title: string;
   subtitle?: string;
-  icon?: "fiscal" | "motorista" | "qr" | "balanca";
+  icon?: "fiscal" | "motorista" | "qr";
 }
 
 export const Header = ({ title, subtitle, icon }: HeaderProps) => {
   const IconComponent = {
     fiscal: Wheat,
     motorista: Truck,
-    qr: QrCode,
-    balanca: Scale
+    qr: QrCode
   }[icon || "fiscal"];
 
   return (

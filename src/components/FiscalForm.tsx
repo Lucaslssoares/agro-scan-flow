@@ -3,14 +3,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Minus, FileText } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import { RomaneioFiscal } from "@/types/romaneio";
 import { storage } from "@/lib/storage";
-import { apontamentoStorage } from "@/lib/apontamentoStorage";
-import { fazendasMock, parcelasMock } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
 
 interface FiscalFormProps {
@@ -22,51 +19,27 @@ export const FiscalForm = ({ onRomaneioCreated }: FiscalFormProps) => {
   const [formData, setFormData] = useState({
     fazenda: "",
     numeroRomaneio: "",
-    parcelas: [] as string[],
     quantidadeDeclarada: "",
     destino: "",
-    fiscal: "Fiscal de Campo" // Nome padrão
+    fiscal: ""
   });
-  const [novaParcela, setNovaParcela] = useState("");
-  const [consolidacao, setConsolidacao] = useState<any>(null);
-  const [useConsolidacao, setUseConsolidacao] = useState(false);
+  const [parcelas, setParcelas] = useState<string[]>([""]);
   const [loading, setLoading] = useState(false);
 
   const addParcela = () => {
-    if (novaParcela && !formData.parcelas.includes(novaParcela)) {
-      setFormData({
-        ...formData,
-        parcelas: [...formData.parcelas, novaParcela]
-      });
-      setNovaParcela("");
-      
-      // Se usar consolidação, busca dados automaticamente
-      if (useConsolidacao && formData.fazenda) {
-        buscarConsolidacao(formData.fazenda, novaParcela);
-      }
+    setParcelas([...parcelas, ""]);
+  };
+
+  const removeParcela = (index: number) => {
+    if (parcelas.length > 1) {
+      setParcelas(parcelas.filter((_, i) => i !== index));
     }
   };
 
-  const removeParcela = (parcela: string) => {
-    setFormData({
-      ...formData,
-      parcelas: formData.parcelas.filter(p => p !== parcela)
-    });
-  };
-
-  const buscarConsolidacao = (fazenda: string, parcela: string) => {
-    const hoje = new Date().toISOString().split('T')[0];
-    const consolidacaoData = apontamentoStorage.consolidarParcela(fazenda, parcela, hoje);
-    
-    if (consolidacaoData.totalCaixas > 0) {
-      setConsolidacao(consolidacaoData);
-      // Converte caixas para kg (assumindo 25kg por caixa)
-      const pesoEstimado = consolidacaoData.totalCaixas * 25;
-      setFormData(prev => ({
-        ...prev,
-        quantidadeDeclarada: pesoEstimado.toString()
-      }));
-    }
+  const updateParcela = (index: number, value: string) => {
+    const newParcelas = [...parcelas];
+    newParcelas[index] = value;
+    setParcelas(newParcelas);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,7 +51,7 @@ export const FiscalForm = ({ onRomaneioCreated }: FiscalFormProps) => {
         id: uuidv4(),
         fazenda: formData.fazenda,
         numeroRomaneio: formData.numeroRomaneio,
-        parcelas: formData.parcelas,
+        parcelas: parcelas.filter(p => p.trim() !== ""),
         quantidadeDeclarada: parseFloat(formData.quantidadeDeclarada),
         destino: formData.destino,
         dataHoraCriacao: new Date().toISOString(),
@@ -95,13 +68,11 @@ export const FiscalForm = ({ onRomaneioCreated }: FiscalFormProps) => {
       setFormData({
         fazenda: "",
         numeroRomaneio: "",
-        parcelas: [],
         quantidadeDeclarada: "",
         destino: "",
-        fiscal: "Fiscal de Campo"
+        fiscal: ""
       });
-      setNovaParcela("");
-      setConsolidacao(null);
+      setParcelas([""]);
 
       toast({
         title: "Romaneio criado!",
@@ -132,19 +103,14 @@ export const FiscalForm = ({ onRomaneioCreated }: FiscalFormProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="fazenda">Fazenda *</Label>
-            <Select value={formData.fazenda} onValueChange={(value) => {
-              setFormData({ ...formData, fazenda: value });
-              setConsolidacao(null);
-            }}>
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Selecione a fazenda" />
-              </SelectTrigger>
-              <SelectContent>
-                {fazendasMock.map(f => (
-                  <SelectItem key={f} value={f}>{f}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              id="fazenda"
+              value={formData.fazenda}
+              onChange={(e) => setFormData({ ...formData, fazenda: e.target.value })}
+              placeholder="Nome da fazenda"
+              required
+              className="mt-1"
+            />
           </div>
 
           <div>
@@ -160,68 +126,39 @@ export const FiscalForm = ({ onRomaneioCreated }: FiscalFormProps) => {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Label>Parcelas *</Label>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={useConsolidacao}
-                onChange={(e) => setUseConsolidacao(e.target.checked)}
-                className="rounded"
-              />
-              Usar dados de apontamento
-            </label>
-          </div>
-          <div className="flex gap-2">
-            <Select value={novaParcela} onValueChange={setNovaParcela}>
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Selecione a parcela" />
-              </SelectTrigger>
-              <SelectContent>
-                {parcelasMock.map(p => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button type="button" onClick={addParcela} size="sm">
-              <Plus className="w-4 h-4" />
+        <div>
+          <Label>Parcelas *</Label>
+          <div className="space-y-2 mt-1">
+            {parcelas.map((parcela, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  value={parcela}
+                  onChange={(e) => updateParcela(index, e.target.value)}
+                  placeholder={`Parcela ${index + 1} (ex: P01)`}
+                  required
+                />
+                {parcelas.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => removeParcela(index)}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={addParcela}
+              className="w-full"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar Parcela
             </Button>
           </div>
-
-          {formData.parcelas.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {formData.parcelas.map((parcela) => (
-                <Badge key={parcela} variant="secondary" className="px-3 py-1">
-                  {parcela}
-                  <button
-                    type="button"
-                    onClick={() => removeParcela(parcela)}
-                    className="ml-2 hover:text-destructive"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {consolidacao && (
-            <Card className="p-4 bg-success/5 border-success/20">
-              <h4 className="font-medium text-success mb-2">Dados de Apontamento Encontrados</h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                {consolidacao.totalCaixas} caixas cortadas ({consolidacao.totalCaixas * 25} kg estimados)
-              </p>
-              <div className="text-xs space-y-1">
-                {consolidacao.colaboradores.map((col: any) => (
-                  <div key={col.id} className="flex justify-between">
-                    <span>{col.nome}</span>
-                    <span>{col.caixas} caixas</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
