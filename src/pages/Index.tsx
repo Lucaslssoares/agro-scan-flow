@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Wheat, Truck, BarChart3, Users, Scale } from "lucide-react";
+import { Wheat, Truck, BarChart3, Users } from "lucide-react";
 
 const Index = () => {
   return (
@@ -31,16 +31,16 @@ const Index = () => {
 
       {/* Navigation Cards */}
       <div className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <Link to="/fiscal">
             <Card className="p-8 hover:shadow-[var(--shadow-strong)] transition-all duration-200 cursor-pointer bg-[var(--gradient-card)] border-border">
               <div className="text-center space-y-4">
                 <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
                   <Wheat className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-xl font-bold text-foreground">Fiscal de Campo</h2>
-                <p className="text-muted-foreground text-sm">
-                  Registrar produção, criar romaneios e gerar QR Codes
+                <h2 className="text-2xl font-bold text-foreground">Fiscal de Campo</h2>
+                <p className="text-muted-foreground">
+                  Crie romaneios, registre dados da carga e gere QR Codes para os motoristas
                 </p>
                 <Button variant="hero" size="lg" className="w-full">
                   Acessar Portal
@@ -55,29 +55,12 @@ const Index = () => {
                 <div className="mx-auto w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center">
                   <Truck className="w-8 h-8 text-accent" />
                 </div>
-                <h2 className="text-xl font-bold text-foreground">Portal do Motorista</h2>
-                <p className="text-muted-foreground text-sm">
-                  Escanear QR Code e completar dados de transporte
+                <h2 className="text-2xl font-bold text-foreground">Portal do Motorista</h2>
+                <p className="text-muted-foreground">
+                  Escaneie QR Codes, complete seus dados e finalize romaneios
                 </p>
                 <Button variant="field" size="lg" className="w-full">
                   Escanear QR Code
-                </Button>
-              </div>
-            </Card>
-          </Link>
-
-          <Link to="/balanca">
-            <Card className="p-8 hover:shadow-[var(--shadow-strong)] transition-all duration-200 cursor-pointer bg-[var(--gradient-card)] border-border">
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-warning/10 rounded-2xl flex items-center justify-center">
-                  <Scale className="w-8 h-8 text-warning" />
-                </div>
-                <h2 className="text-xl font-bold text-foreground">Operador de Balança</h2>
-                <p className="text-muted-foreground text-sm">
-                  Pesagem e validação final dos romaneios
-                </p>
-                <Button variant="outline" size="lg" className="w-full">
-                  Acessar Balança
                 </Button>
               </div>
             </Card>
