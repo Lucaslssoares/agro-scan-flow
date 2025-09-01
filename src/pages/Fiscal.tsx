@@ -2,10 +2,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { FiscalForm } from "@/components/FiscalForm";
 import { QRDisplay } from "@/components/QRDisplay";
-import { ApontamentoForm } from "@/components/ApontamentoForm";
-import { RelatoriosView } from "@/components/RelatoriosView";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { RomaneioFiscal } from "@/types/romaneio";
 
@@ -37,7 +34,7 @@ const Fiscal = () => {
               className="mb-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar
+              Criar novo romaneio
             </Button>
             
             <QRDisplay
@@ -47,25 +44,7 @@ const Fiscal = () => {
             />
           </div>
         ) : (
-          <Tabs defaultValue="apontamento" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="apontamento">Apontamentos</TabsTrigger>
-              <TabsTrigger value="romaneio">Romaneios</TabsTrigger>
-              <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="apontamento" className="mt-6">
-              <ApontamentoForm />
-            </TabsContent>
-            
-            <TabsContent value="romaneio" className="mt-6">
-              <FiscalForm onRomaneioCreated={handleRomaneioCreated} />
-            </TabsContent>
-            
-            <TabsContent value="relatorios" className="mt-6">
-              <RelatoriosView />
-            </TabsContent>
-          </Tabs>
+          <FiscalForm onRomaneioCreated={handleRomaneioCreated} />
         )}
       </main>
     </div>
